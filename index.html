@@ -1,5 +1,13 @@
 <!DOCTYPE html>
-<title>Bravovic</title>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bravovic · AI consultant</title>
+<meta name="description" content="AI consulting for businesses and people. Text me your problem on Instagram. The first one is free.">
+<meta property="og:title" content="Bravovic · AI consultant">
+<meta property="og:description" content="Text me your problem. The first one is free.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#05060a">
 <style>
 /*
   Layout concept: one full-height scene — a black starfield canvas fills the
@@ -50,17 +58,32 @@ body{
     max(16px, env(safe-area-inset-left, 0px));
 }
 
+/* content-sized: only the hero and the finale are full-screen */
 .section-two{
   position:relative;
-  min-height:100svh;
   display:flex;
   align-items:center;
   justify-content:center;
   padding:
-    max(32px, env(safe-area-inset-top, 0px))
+    clamp(3rem, 9vh, 7rem)
     max(16px, env(safe-area-inset-right, 0px))
-    max(32px, env(safe-area-inset-bottom, 0px))
+    clamp(3rem, 9vh, 7rem)
     max(16px, env(safe-area-inset-left, 0px));
+}
+
+.tagline{
+  margin:0;
+  font-size:0.82rem;
+  font-weight:600;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--accent);
+}
+
+.cta-note{
+  margin:-0.8rem 0 0;
+  font-size:0.8rem;
+  color:var(--muted);
 }
 
 .section-two .content{
@@ -83,7 +106,55 @@ body{
   color:var(--accent);
 }
 
-.section-two h2{
+/* a hidden word sits a fixed 48px (about 13mm) above every section headline */
+.headline-group{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:48px;
+}
+.section-three .headline-group{ margin-bottom:0.6rem; }
+.section-three .headline-group h2{ margin:0; }
+
+/* hidden phrases: invisible placeholders that hold size and position. The
+   visible letters are drawn on the #sky canvas as constellations (see script). */
+.hidden-phrase{
+  display:flex;
+  flex-wrap:nowrap;
+  justify-content:center;
+  gap:0.35em 0.7em;
+  width:max-content; /* wider than the text column: the phrase spans the sky above it */
+  /* three times the earlier size on wide screens; on narrower ones as large as
+     lets the three-word phrase stay on one line */
+  font-size:min(8.6vw, 11.4rem);
+  font-weight:700;
+  line-height:0.72; /* box = letter height, so the 48px gap is measured from the letters */
+  color:transparent;
+  user-select:none;
+  pointer-events:none;
+}
+/* the finale phrase is one line of tall, narrow letters: the font size sets the
+   letter width (so four words fit), the line-height sets the letter height */
+.hidden-phrase.long{
+  font-size:min(6.4vw, 8.6rem);
+  line-height:1.5;
+}
+/* section one's single word is half as large again */
+.hidden-phrase.solo{ font-size:min(12.9vw, 17.1rem); }
+/* phones: as large as fits two words on a line; longer phrases wrap */
+@media (max-width: 640px){
+  .hidden-phrase{ font-size:12vw; flex-wrap:wrap; width:auto; }
+  .hidden-phrase.long{ font-size:6.4vw; line-height:1.7; flex-wrap:nowrap; }
+  .hidden-phrase.solo{ font-size:18vw; }
+}
+.hw{
+  display:block;
+  white-space:nowrap;
+  letter-spacing:0.22em;
+  padding-left:0.22em; /* balances the trailing letter-spacing so the word stays centred */
+}
+
+.section-two h2, .section-four h2{
   margin:0;
   font-size:clamp(1.6rem, 3.6vw, 2.4rem);
   line-height:1.2;
@@ -102,11 +173,11 @@ body{
   text-wrap:balance;
 }
 
-/* section three: tall scroll-driver wrapper. Its extra height is what gets
-   converted into horizontal motion of the gallery while the stage stays pinned. */
+/* section three: scroll-driver wrapper. On desktop the script sets its height to
+   one viewport plus exactly the distance the gallery has to travel sideways, so
+   there is no dead scrolling. On phones it is a normal swipe row (see below). */
 .section-three{
   position:relative;
-  height:340vh;
 }
 
 .sticky-stage{
@@ -227,11 +298,19 @@ body{
     max(16px, env(safe-area-inset-left, 0px));
 }
 
-/* reduced motion: no scroll-jacking — the gallery becomes a normal, draggable row */
-body.reduced-motion .section-three{ height:auto; }
-body.reduced-motion .sticky-stage{ position:relative; height:auto; padding-block:3rem; }
-body.reduced-motion .gallery-viewport{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
-body.reduced-motion .gallery-track{ transform:none !important; }
+/* phones, touch screens and reduced motion: no scroll-jacking — the gallery is a
+   normal swipe row sized by its content */
+body.swipe-gallery .section-three{ height:auto !important; }
+body.swipe-gallery .sticky-stage{ position:relative; height:auto; padding-block:clamp(3rem, 9vh, 7rem); }
+body.swipe-gallery .gallery-viewport{
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  scroll-snap-type:x mandatory;
+  scrollbar-width:none;
+}
+body.swipe-gallery .gallery-viewport::-webkit-scrollbar{ display:none; }
+body.swipe-gallery .gallery-track{ transform:none !important; padding-right:16px; }
+body.swipe-gallery .site-card{ scroll-snap-align:start; }
 
 .logo{
   position:fixed;
@@ -296,6 +375,8 @@ p.subhead{
 }
 
 .cta{
+  display:inline-block;
+  text-decoration:none;
   appearance:none;
   border:1px solid rgba(244,241,234,0.22);
   background:transparent;
@@ -344,26 +425,35 @@ p.subhead{
   <div class="logo" id="logo">B<span class="mid">RAVOV<span class="slash">\</span></span>C</div>
 
   <div class="content">
-    <h1>Curiosity is the beginning of everything.</h1>
-    <p class="subhead">Bravovic exists for people who keep asking why. We build tools that turn that question into clarity, one answer at a time.</p>
-    <button class="cta" id="cta" type="button">Ask why</button>
+    <div class="headline-group">
+      <div class="hidden-phrase solo" aria-hidden="true"><span class="hw">WHY</span></div>
+      <h1>Curiosity is the beginning of everything.</h1>
+    </div>
+    <p class="subhead">I'm Viktor, an AI consultant. Tell me your Why &amp; get yourself How.</p>
+    <a class="cta" href="https://ig.me/m/bravoviktorrr" target="_blank" rel="noopener">Text me your problem</a>
+    <p class="cta-note">Opens Instagram DM · @bravoviktorrr</p>
   </div>
 </div>
 
 <div class="section-two">
   <div class="content">
-    <h2>Sky is the limit.</h2>
-    <p>No new background here — it's the hero's starfield, fixed in place, with this section scrolling over it.</p>
-    <button class="cta" id="cta2" type="button">Why not?</button>
+    <div class="headline-group">
+      <div class="hidden-phrase" aria-hidden="true"><span class="hw">WHY</span><span class="hw">NOT</span></div>
+      <h2>Just ask.</h2>
+    </div>
+    <p>You are here for a reason. The first reason is free. Just a message.</p>
+    <a class="cta" href="https://ig.me/m/bravoviktorrr" target="_blank" rel="noopener">Why not?</a>
   </div>
 </div>
 
 <div class="section-three" id="work">
   <div class="sticky-stage">
     <div class="intro">
-      <p class="eyebrow">What I do</p>
-      <h2>This is me.</h2>
-      <p>A collection of websites I've built. Keep scrolling — it moves sideways from here.</p>
+      <div class="headline-group">
+        <div class="hidden-phrase" aria-hidden="true"><span class="hw">WHY</span><span class="hw">NOT</span><span class="hw">ME</span></div>
+        <h2>This is me</h2>
+      </div>
+      <p>putting AI to work on real problems for business &amp; people too.</p>
     </div>
 
     <div class="gallery-viewport">
@@ -395,8 +485,13 @@ p.subhead{
 
 <div class="section-four" id="finale">
   <div class="content">
-    <p class="subhead">There's nothing here yet — just a button, and whatever you decide to build next.</p>
-    <button class="cta" id="cta3" type="button">Start now</button>
+    <div class="headline-group">
+      <div class="hidden-phrase long" id="phrase" aria-hidden="true"><span class="hw">WHY</span><span class="hw">NOT</span><span class="hw">ME</span><span class="hw">NOW</span></div>
+      <h2>It takes one message.</h2>
+    </div>
+    <p class="subhead">Because the problem won't fix itself while you wait. Text me today.</p>
+    <p class="tagline">Let's Plan, Build, Improve &amp; Grow</p>
+    <a class="cta" href="https://ig.me/m/bravoviktorrr" target="_blank" rel="noopener">Text me on Instagram</a>
   </div>
 </div>
 
@@ -407,140 +502,22 @@ p.subhead{
   "use strict";
   var canvas = document.getElementById("sky");
   var ctx = canvas.getContext("2d");
-  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var mq = function(q){ return !!(window.matchMedia && window.matchMedia(q).matches); };
+  var reduceMotion = mq("(prefers-reduced-motion: reduce)");
+  var noHover = mq("(hover: none)");
+  // phones / touch / reduced motion get a plain swipe gallery
+  // (also used while the gallery is hidden, so the section is sized by its content)
+  var swipeGallery = reduceMotion || mq("(max-width: 768px), (pointer: coarse)") ||
+    document.querySelector(".gallery-viewport").hidden;
+  if (swipeGallery) document.body.classList.add("swipe-gallery");
+  var baseSwipe = swipeGallery;
 
+  /* ---------- background starfield ---------- */
   var W = 0, H = 0, DPR = Math.min(window.devicePixelRatio || 1, 2);
   var stars = [];
-  var letterStars = [];
-  var letterStarsNot = [];
-  var letterStarsMe = [];
-  var letterStarsNow = [];
   var mouse = { x: null, y: null, active: false };
-  var parallax = { x: 0, y: 0 };
+  var parallax = { x: 0, y: 0, tx: 0, ty: 0 };
   var startTime = performance.now();
-  var sectionTwoEl = document.querySelector(".section-two");
-  var workEl = document.getElementById("work");
-  var finaleEl = document.getElementById("finale");
-  var convergeStart = null; // timestamp when the hidden words start drifting into headline form
-
-  function smoothstep(x){
-    x = Math.max(0, Math.min(1, x));
-    return x * x * (3 - 2 * x);
-  }
-
-  function lerp(a, b, t){ return a + (b - a) * t; }
-
-  // 1 once `el`'s top has reached the viewport top, 0 while it's still a full viewport below
-  function sectionReveal(el){
-    if (!el) return 1;
-    var raw = 1 - el.getBoundingClientRect().top / window.innerHeight;
-    return smoothstep(raw);
-  }
-
-  // 5x7 dot-matrix bitmaps for W, H, Y, N, O, T, M, E
-  var FONT = {
-    W: [
-      "1...1",
-      "1...1",
-      "1...1",
-      "1.1.1",
-      "1.1.1",
-      "11.11",
-      "1...1"
-    ],
-    H: [
-      "1...1",
-      "1...1",
-      "1...1",
-      "11111",
-      "1...1",
-      "1...1",
-      "1...1"
-    ],
-    Y: [
-      "1...1",
-      "1...1",
-      ".1.1.",
-      "..1..",
-      "..1..",
-      "..1..",
-      "..1.."
-    ],
-    N: [
-      "1...1",
-      "11..1",
-      "1.1.1",
-      "1.1.1",
-      "1..11",
-      "1...1",
-      "1...1"
-    ],
-    O: [
-      ".111.",
-      "1...1",
-      "1...1",
-      "1...1",
-      "1...1",
-      "1...1",
-      ".111."
-    ],
-    T: [
-      "11111",
-      "..1..",
-      "..1..",
-      "..1..",
-      "..1..",
-      "..1..",
-      "..1.."
-    ],
-    M: [
-      "1...1",
-      "11.11",
-      "1.1.1",
-      "1.1.1",
-      "1...1",
-      "1...1",
-      "1...1"
-    ],
-    E: [
-      "11111",
-      "1....",
-      "1111.",
-      "1....",
-      "1....",
-      "1....",
-      "11111"
-    ]
-  };
-
-  // builds a dot-matrix word as an array of star points, anchored at (originX, originY)
-  function buildWord(word, originX, originY, cell){
-    var gapCols = 2;
-    var points = [];
-    var colCursor = 0;
-    var order = 0;
-    for (var w = 0; w < word.length; w++){
-      var rows = FONT[word[w]];
-      for (var row = 0; row < rows.length; row++){
-        var cols = rows[row];
-        for (var col = 0; col < cols.length; col++){
-          if (cols[col] === "1"){
-            points.push({
-              x: originX + (colCursor + col) * cell,
-              y: originY + row * cell,
-              r: cell * 0.07, // close to a background star's size, not an obviously larger dot
-              order: order,
-              twSpeed: Math.random() * 0.0012 + 0.0004,
-              twPhase: Math.random() * Math.PI * 2
-            });
-          }
-        }
-      }
-      colCursor += 5 + gapCols;
-      order++;
-    }
-    return points;
-  }
 
   function resize(){
     W = window.innerWidth;
@@ -550,12 +527,8 @@ p.subhead{
     canvas.style.width = W + "px";
     canvas.style.height = H + "px";
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    buildStars();
-  }
-
-  function buildStars(){
     stars = [];
-    var count = Math.round((W * H) / 9000);
+    var count = Math.round((W * H) / 8000); // the letters' own stars add to these
     for (var i = 0; i < count; i++){
       stars.push({
         x: Math.random() * W,
@@ -567,132 +540,13 @@ p.subhead{
         depth: Math.random() * 0.6 + 0.4
       });
     }
-    buildLetters();
   }
-
-  // total pixel size of a word at a given cell size (every letter is 7 rows tall)
-  function wordSize(word, cellSize){
-    var cols = word.length * 5 + (word.length - 1) * 2;
-    return { w: cols * cellSize, h: 7 * cellSize };
-  }
-
-  function buildLetters(){
-    var cell = Math.max(10, Math.min(20, W / 55));
-    var amp = Math.min(W * 0.2, 170); // constant left/right offset from center — same for every word
-    var defaultStep = H * 0.22; // default equal vertical gap between consecutive words
-
-    var sizeWhy = wordSize(["W", "H", "Y"], cell);
-    var sizeNot = wordSize(["N", "O", "T"], cell);
-    var sizeMe = wordSize(["M", "E"], cell);
-    var sizeNow = wordSize(["N", "O", "W"], cell);
-    var wordH = sizeWhy.h; // same for every word — same cell size throughout
-
-    // four equally-spaced slots, symmetric around the vertical center, so WHY and
-    // NOW are always equidistant from the middle and can never be pushed off-screen
-    var center = H / 2;
-    var maxStep = Math.max(10, (H - wordH - 40) / 3); // hard cap: keeps WHY/NOW inside [20, H-20]
-
-    // ME must clear the gallery row in section three — measure that live,
-    // and grow the step to match, but never beyond maxStep (WHY staying visible wins)
-    var minTopMe = H - sizeMe.h - 20;
-    var galleryEl = document.querySelector(".gallery-viewport");
-    var stickyEl = document.querySelector(".sticky-stage");
-    if (galleryEl && stickyEl){
-      minTopMe = galleryEl.getBoundingClientRect().bottom - stickyEl.getBoundingClientRect().top + 18;
-    }
-    var desiredStep = Math.max(defaultStep, 2 * (minTopMe - center + wordH / 2));
-    var step = Math.min(desiredStep, maxStep);
-
-    var topWhy = center - 1.5 * step - wordH / 2;
-    var topNot = center - 0.5 * step - wordH / 2;
-    var topMe = center + 0.5 * step - wordH / 2;
-    var topNow = center + 1.5 * step - wordH / 2;
-
-    function leftX(size){ return Math.max(20, W / 2 - amp - size.w / 2); }
-    function rightX(size){ return Math.min(W - size.w - 20, W / 2 + amp - size.w / 2); }
-
-    letterStars = buildWord(["W", "H", "Y"], leftX(sizeWhy), topWhy, cell);
-    letterStarsNot = buildWord(["N", "O", "T"], rightX(sizeNot), topNot, cell);
-    letterStarsMe = buildWord(["M", "E"], leftX(sizeMe), topMe, cell);
-    letterStarsNow = buildWord(["N", "O", "W"], rightX(sizeNow), topNow, cell);
-
-    // target layout: all four words laid out on one line — "WHY NOT ME NOW" — the
-    // position each point drifts towards once the visitor reaches the last section
-    var cellHeadline = cell;
-    var groupGap = cellHeadline * 1.75;
-    var whyH = wordSize(["W", "H", "Y"], cellHeadline);
-    var notH = wordSize(["N", "O", "T"], cellHeadline);
-    var meH = wordSize(["M", "E"], cellHeadline);
-    var nowH = wordSize(["N", "O", "W"], cellHeadline);
-    var totalLineW = whyH.w + notH.w + meH.w + nowH.w + groupGap * 3;
-    var maxLineW = W - 40;
-    if (totalLineW > maxLineW){
-      var scale = maxLineW / totalLineW;
-      cellHeadline = Math.max(4, cellHeadline * scale);
-      groupGap = cellHeadline * 1.75;
-      whyH = wordSize(["W", "H", "Y"], cellHeadline);
-      notH = wordSize(["N", "O", "T"], cellHeadline);
-      meH = wordSize(["M", "E"], cellHeadline);
-      nowH = wordSize(["N", "O", "W"], cellHeadline);
-      totalLineW = whyH.w + notH.w + meH.w + nowH.w + groupGap * 3;
-    }
-
-    // #finale is a plain block far down the document, not sticky — its live .top is
-    // stale/meaningless until it's actually scrolled into view. But its .height IS
-    // scroll-invariant, and since #finale is flex-centered within exactly one
-    // viewport (min-height:100svh, nothing scrolls past it), its content's vertical
-    // center will land on H/2 once fully in view — so derive the position from that
-    // known layout instead of reading a .top that hasn't happened yet.
-    var lineH = 7 * cellHeadline;
-    var headlineTop = H * 0.5 - lineH / 2 - 60; // fallback if #finale .content can't be measured
-    var finaleContentEl = document.querySelector("#finale .content");
-    if (finaleContentEl){
-      var contentHeight = finaleContentEl.getBoundingClientRect().height;
-      headlineTop = H / 2 - contentHeight / 2 - 32 - lineH;
-    }
-    if (headlineTop < 20) headlineTop = 20;
-
-    var cursorX = W / 2 - totalLineW / 2;
-    var targetWhy = buildWord(["W", "H", "Y"], cursorX, headlineTop, cellHeadline);
-    cursorX += whyH.w + groupGap;
-    var targetNot = buildWord(["N", "O", "T"], cursorX, headlineTop, cellHeadline);
-    cursorX += notH.w + groupGap;
-    var targetMe = buildWord(["M", "E"], cursorX, headlineTop, cellHeadline);
-    cursorX += meH.w + groupGap;
-    var targetNow = buildWord(["N", "O", "W"], cursorX, headlineTop, cellHeadline);
-
-    function mergeTargets(homeArr, targetArr){
-      for (var i = 0; i < homeArr.length; i++){
-        homeArr[i].tx = targetArr[i].x;
-        homeArr[i].ty = targetArr[i].y;
-      }
-    }
-    mergeTargets(letterStars, targetWhy);
-    mergeTargets(letterStarsNot, targetNot);
-    mergeTargets(letterStarsMe, targetMe);
-    mergeTargets(letterStarsNow, targetNow);
-  }
-
-  function onMove(e){
-    var x = e.touches ? e.touches[0].clientX : e.clientX;
-    var y = e.touches ? e.touches[0].clientY : e.clientY;
-    mouse.x = x; mouse.y = y; mouse.active = true;
-  }
-  function onLeave(){ mouse.active = false; }
-
-  window.addEventListener("resize", resize, { passive: true });
-  window.addEventListener("mousemove", onMove, { passive: true });
-  window.addEventListener("mouseleave", onLeave, { passive: true });
-  window.addEventListener("touchmove", onMove, { passive: true });
 
   function draw(now){
     var t = now - startTime;
-
     if (mouse.active && mouse.x !== null){
-      var nx = (mouse.x / W) * 2 - 1;
-      var ny = (mouse.y / H) * 2 - 1;
-      parallax.tx = -nx * 16;
-      parallax.ty = -ny * 12;
+      parallax.tx = -((mouse.x / W) * 2 - 1) * 16;
+      parallax.ty = -((mouse.y / H) * 2 - 1) * 12;
     } else {
       parallax.tx = 0; parallax.ty = 0;
     }
@@ -700,143 +554,363 @@ p.subhead{
     parallax.y += (parallax.ty - parallax.y) * 0.04;
 
     ctx.clearRect(0, 0, W, H);
-
-    // background stars
     for (var i = 0; i < stars.length; i++){
       var s = stars[i];
       var flicker = reduceMotion ? 0 : Math.sin(t * s.twSpeed + s.twPhase) * 0.25;
       var alpha = Math.max(0, Math.min(1, s.base + flicker));
-      var dx = s.x + parallax.x * s.depth;
-      var dy = s.y + parallax.y * s.depth;
       ctx.beginPath();
       ctx.fillStyle = "rgba(255,255,255," + alpha.toFixed(3) + ")";
-      ctx.arc(dx, dy, s.r, 0, Math.PI * 2);
+      ctx.arc(s.x + parallax.x * s.depth, s.y + parallax.y * s.depth, s.r, 0, Math.PI * 2);
       ctx.fill();
     }
-
-    // once the last section is fully in view, the four hidden words start drifting
-    // (slowly, over a few seconds) from their scattered spots into one headline line
-    var gateNowEarly = reduceMotion ? 1 : sectionReveal(finaleEl);
-    if (convergeStart === null && gateNowEarly > 0.98) convergeStart = now;
-    var convergeProgress = 0;
-    if (convergeStart !== null){
-      var convergeRaw = reduceMotion ? 1 : Math.max(0, Math.min(1, (now - convergeStart) / 3500));
-      convergeProgress = smoothstep(convergeRaw);
-    }
-
-    // hidden word stars — a flat, near-background baseline brightness (each dot
-    // twinkles individually, like the background stars do) with a glow halo that
-    // only appears when the cursor is actually near; convergeProgress only ever
-    // moves position (lerp), it never pushes brightness up on its own
-    var gateNot = reduceMotion ? 1 : sectionReveal(sectionTwoEl);
-    var gateMe = reduceMotion ? 1 : sectionReveal(workEl);
-    var gateNow = gateNowEarly;
-
-    function drawGatedWord(points, gate, progress){
-      for (var k = 0; k < points.length; k++){
-        var ns = points[k];
-        var dxn = lerp(ns.x, ns.tx, progress) + parallax.x * 0.9;
-        var dyn = lerp(ns.y, ns.ty, progress) + parallax.y * 0.9;
-
-        var twinkle = reduceMotion ? 0 : Math.sin(t * ns.twSpeed + ns.twPhase) * 0.15;
-        var baseline = Math.max(0, Math.min(1, 0.5 + twinkle));
-
-        var proximityN = 0;
-        if (mouse.active && mouse.x !== null){
-          var distN = Math.hypot(mouse.x - dxn, mouse.y - dyn);
-          proximityN = Math.max(0, 1 - distN / 180);
-        }
-        var brightN = Math.min(1, gate * baseline + proximityN * gate);
-
-        if (proximityN > 0.06){
-          var haloStrength = proximityN * gate;
-          var glowRN = ns.r * (2 + haloStrength * 5);
-          var gradN = ctx.createRadialGradient(dxn, dyn, 0, dxn, dyn, glowRN);
-          gradN.addColorStop(0, "rgba(255,227,168," + (haloStrength * 0.9).toFixed(3) + ")");
-          gradN.addColorStop(1, "rgba(255,227,168,0)");
-          ctx.beginPath();
-          ctx.fillStyle = gradN;
-          ctx.arc(dxn, dyn, glowRN, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        ctx.beginPath();
-        ctx.fillStyle = "rgba(255,255,255," + brightN.toFixed(3) + ")";
-        ctx.arc(dxn, dyn, ns.r + proximityN * ns.r * 1.5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    drawGatedWord(letterStars, 1, convergeProgress);
-    drawGatedWord(letterStarsNot, gateNot, convergeProgress);
-    drawGatedWord(letterStarsMe, gateMe, convergeProgress);
-    drawGatedWord(letterStarsNow, gateNow, convergeProgress);
-
+    drawWordStars(now, t);
     requestAnimationFrame(draw);
   }
 
-  resize();
-  requestAnimationFrame(draw);
+  /* ---------- hidden phrases: written in stars ----------
+     Each word (.hw) is an invisible placeholder that holds size and position.
+     Its letters are dotted out of stars, each letter a different size. The
+     stars are ordinary-looking sky stars until the word is called. */
+  var LIGHT_R = 240;
+  var phraseEls = Array.prototype.slice.call(document.querySelectorAll(".hidden-phrase"));
+  var finalePhrase = document.getElementById("phrase");
+  var wordStars = [];
+  var forceReveal = /[?&]reveal\b/.test(location.search); // preview aid: page.html?reveal shows every phrase
 
-  // logo expand-on-load, replay on hover/focus
+  // letters as strokes in a unit box (x right, y down); w = width relative to height
+  var GLYPHS = {
+    W: { w: 1.1,  s: [[[0,0],[0.25,1],[0.5,0.3],[0.75,1],[1,0]]] },
+    H: { w: 0.8,  s: [[[0,0],[0,0.5],[0,1]], [[1,0],[1,0.5],[1,1]], [[0,0.5],[1,0.5]]] },
+    Y: { w: 0.85, s: [[[0,0],[0.5,0.5],[1,0]], [[0.5,0.5],[0.5,1]]] },
+    N: { w: 0.8,  s: [[[0,1],[0,0],[1,1],[1,0]]] },
+    O: { w: 0.9,  s: [[[0.3,0],[0.7,0],[1,0.3],[1,0.7],[0.7,1],[0.3,1],[0,0.7],[0,0.3],[0.3,0]]] },
+    T: { w: 0.8,  s: [[[0,0],[0.5,0],[1,0]], [[0.5,0],[0.5,1]]] },
+    M: { w: 1.0,  s: [[[0,1],[0,0],[0.5,0.6],[1,0],[1,1]]] },
+    E: { w: 0.7,  s: [[[1,0],[0,0],[0,0.5],[0,1],[1,1]], [[0,0.5],[0.8,0.5]]] }
+  };
+
+  // small seeded generator: a word keeps the same hand-drawn shape on every rebuild
+  function seeded(seed){
+    return function(){
+      seed = (seed + 0x6D2B79F5) | 0;
+      var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function buildConstellation(el, seed){
+    var rnd = seeded(seed);
+    var cs = getComputedStyle(el);
+    var size = parseFloat(cs.fontSize);
+    var ls = parseFloat(cs.letterSpacing) || 0;
+    var padL = parseFloat(cs.paddingLeft) || 0;
+    var w = el.offsetWidth, h = el.offsetHeight;
+    var text = el.textContent;
+    var stars = [], lines = [];
+    if (!w || !h) return { stars: stars, lines: lines };
+
+    var cap = size * 0.72; // full-size letter width unit; full height is the placeholder's height
+    // every letter gets its own size, never the same as its neighbour
+    var scales = [], natural = 0, i;
+    for (i = 0; i < text.length; i++){
+      var sc = 0.66 + rnd() * 0.34;
+      if (i && Math.abs(sc - scales[i - 1]) < 0.09) sc = scales[i - 1] > 0.83 ? scales[i - 1] - 0.15 : scales[i - 1] + 0.15;
+      scales.push(sc);
+      natural += GLYPHS[text[i]].w * cap * sc;
+    }
+    var avail = w - padL - ls;
+    var gap = text.length > 1 ? (avail - natural) / (text.length - 1) : 0;
+    var x0 = padL + (text.length > 1 ? 0 : (avail - natural) / 2);
+
+    for (i = 0; i < text.length; i++){
+      var g = GLYPHS[text[i]];
+      var gw = g.w * cap * scales[i], gh = h * scales[i];
+      var seen = {};
+      // upright, undistorted; smaller letters stand on the same baseline
+      var place = function(pt){
+        return [x0 + pt[0] * gw, h - (1 - pt[1]) * gh];
+      };
+      // one shared star per corner, so strokes that meet really join
+      var corner = function(pt){
+        var key = pt[0] + "," + pt[1];
+        if (seen[key] === undefined){
+          seen[key] = stars.length;
+          stars.push({
+            x: place(pt)[0] + (rnd() - 0.5) * cap * 0.04,
+            y: place(pt)[1] + (rnd() - 0.5) * cap * 0.04,
+            r: rnd() * 0.6 + 1.5,
+            base: rnd() * 0.12 + 0.88,
+            twSpeed: rnd() * 0.0016 + 0.0006,
+            twPhase: rnd() * Math.PI * 2
+          });
+        }
+        return seen[key];
+      };
+      g.s.forEach(function(stroke){
+        for (var k = 0; k < stroke.length - 1; k++){
+          var a = corner(stroke[k]), b = corner(stroke[k + 1]);
+          var A = stars[a], B = stars[b];
+          var len = Math.hypot(B.x - A.x, B.y - A.y);
+          // no joining lines, so the strokes themselves are dotted with stars
+          var extra = Math.max(0, Math.round(len / (cap * 0.27)) - 1);
+          var prev = a;
+          for (var n = 1; n <= extra; n++){
+            var f = n / (extra + 1);
+            stars.push({
+              x: A.x + (B.x - A.x) * f + (rnd() - 0.5) * cap * 0.05,
+              y: A.y + (B.y - A.y) * f + (rnd() - 0.5) * cap * 0.05,
+              r: rnd() * 0.5 + 1.1,
+              base: rnd() * 0.22 + 0.74,
+              twSpeed: rnd() * 0.0016 + 0.0006,
+              twPhase: rnd() * Math.PI * 2
+            });
+            lines.push([prev, stars.length - 1]);
+            prev = stars.length - 1;
+          }
+          lines.push([prev, b]);
+        }
+      });
+      x0 += gw + gap;
+    }
+    return { stars: stars, lines: lines };
+  }
+
+  /* Every star of every letter is a traveller with a home in the sky. At rest
+     it sits at home and looks like any other background star (some homes are
+     just outside the screen, so those arrive from beyond the edges). When its
+     word is called, it flies along a slight arc to its place in the letter;
+     when the word is released it flies home again. */
+  function buildWordStars(){
+    var old = wordStars;
+    wordStars = [];
+    var k = 0, total = 0;
+    phraseEls.forEach(function(ph, pi){
+      Array.prototype.forEach.call(ph.querySelectorAll(".hw"), function(el, wi){
+        var prev = old[k++];
+        var seed = 7 + k * 101;
+        var c = buildConstellation(el, seed);
+        total += c.stars.length;
+        wordStars.push({
+          el: el,
+          phrase: ph,
+          first: pi === 0,          // section one: called by the first scroll gesture
+          idx: wi,                  // position in its phrase: words arrive one after another
+          seed: seed,
+          stars: c.stars,
+          p: prev ? prev.p : 0      // 0 = all stars at home, 1 = word assembled
+        });
+      });
+    });
+
+    // only as many travellers live on screen as the sky can take without looking
+    // crowded; the rest wait just outside the edges
+    var pOn = Math.min(1, (W * H / 12000) / Math.max(1, total));
+    wordStars.forEach(function(d){
+      var rnd = seeded(d.seed + 999);
+      d.stars.forEach(function(s){
+        if (rnd() < pOn){
+          s.hx = rnd() * W; s.hy = rnd() * H;
+        } else {
+          var side = Math.floor(rnd() * 4), out = 40 + rnd() * 220;
+          if (side === 0){ s.hx = -out; s.hy = rnd() * H; }
+          else if (side === 1){ s.hx = W + out; s.hy = rnd() * H; }
+          else if (side === 2){ s.hx = rnd() * W; s.hy = -out; }
+          else { s.hx = rnd() * W; s.hy = H + out; }
+        }
+        s.hr = rnd() * 1.1 + 0.3;      // size and brightness while it is an ordinary star
+        s.hb = rnd() * 0.5 + 0.25;
+        s.depth = rnd() * 0.6 + 0.4;
+        s.delay = rnd() * 0.3;
+        s.bend = (rnd() - 0.5) * 140;
+      });
+    });
+  }
+
+  function distToRect(x, y, r){
+    var dx = Math.max(r.left - x, 0, x - r.right);
+    var dy = Math.max(r.top - y, 0, y - r.bottom);
+    return Math.hypot(dx, dy);
+  }
+  function falloff(dist){
+    var q = 1 - dist / LIGHT_R;
+    return q <= 0 ? 0 : q * q * (3 - 2 * q);
+  }
+
+  /* Section one: the first scroll gesture is spent on assembling the word. The
+     page holds still meanwhile, and scrolling works normally from the next
+     gesture on. */
+  var gatherOn = forceReveal || reduceMotion || window.scrollY > 8;
+  var scrollLocked = !gatherOn;
+  var SCROLL_KEYS = [" ", "ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End"];
+  function holdScroll(e){
+    if (!scrollLocked) return;
+    if (e.type === "wheel" && e.ctrlKey) return;                       // pinch-zoom, not a scroll
+    if (e.type === "keydown" && SCROLL_KEYS.indexOf(e.key) < 0) return;
+    if (e.cancelable) e.preventDefault();
+    if (!gatherOn){
+      gatherOn = true;
+      setTimeout(function(){ scrollLocked = false; }, 2600);           // never hold the page longer than this
+    }
+  }
+  window.addEventListener("wheel", holdScroll, { passive: false });
+  window.addEventListener("touchmove", holdScroll, { passive: false });
+  window.addEventListener("keydown", holdScroll);
+  // a reload can restore a scroll position further down: nothing to hold then
+  window.addEventListener("load", function(){
+    if (window.scrollY > 8){ gatherOn = true; scrollLocked = false; }
+  });
+
+  var lastNow = 0;
+  function drawWordStars(now, t){
+    var dt = Math.min(1000, now - (lastNow || now));
+    lastNow = now;
+    var torch = mouse.active && mouse.x !== null;
+    var i, k;
+
+    // only one phrase is ever called at a time: of those on screen, the one
+    // nearest the middle. The others are released and their stars fly home, so
+    // a phrase assembles again whenever its section comes back.
+    var active = null, best = Infinity;
+    for (i = 0; i < phraseEls.length; i++){
+      var pr = phraseEls[i].getBoundingClientRect();
+      if (i === 0 && !gatherOn) continue;                 // section one waits for the first scroll
+      if (!(pr.top < H * 0.85 && pr.bottom > 0)) continue;
+      var off = Math.abs((pr.top + pr.bottom) / 2 - H * 0.42);
+      if (off < best){ best = off; active = phraseEls[i]; }
+    }
+    for (i = 0; i < phraseEls.length; i++){
+      var ph = phraseEls[i];
+      if (ph !== active) ph._enterAt = null;
+      else if (ph._enterAt == null) ph._enterAt = now;
+    }
+
+    for (i = 0; i < wordStars.length; i++){
+      var d = wordStars[i];
+      var on = forceReveal ||
+        (d.phrase._enterAt != null && now >= d.phrase._enterAt + d.idx * 320);
+      d.p = Math.max(0, Math.min(1, d.p + (on ? dt / 1900 : -dt / 1400)));
+      if (d.first && d.p >= 1) scrollLocked = false;
+
+      var rect = d.el.getBoundingClientRect();
+      // until a word has assembled, the cursor can still find it where it will be
+      var nearTorch = torch && d.p < 1 && distToRect(mouse.x, mouse.y, rect) < LIGHT_R;
+
+      for (k = 0; k < d.stars.length; k++){
+        var s = d.stars[k];
+        var tx = rect.left + s.x, ty = rect.top + s.y;
+        var q = Math.max(0, Math.min(1, (d.p - s.delay) / 0.7));
+        var e = q * q * (3 - 2 * q);
+        var x, y, r, a;
+        if (reduceMotion){
+          x = tx; y = ty; r = s.r; a = s.base * e;      // no flight: fade in place
+        } else {
+          var hx = s.hx + parallax.x * s.depth, hy = s.hy + parallax.y * s.depth;
+          var dx = tx - hx, dy = ty - hy, len = Math.hypot(dx, dy) || 1;
+          var bend = Math.sin(e * Math.PI) * s.bend;
+          x = hx + dx * e - (dy / len) * bend;
+          y = hy + dy * e + (dx / len) * bend;
+          r = s.hr + (s.r - s.hr) * e;
+          var rest = Math.max(0, Math.min(1, s.hb + Math.sin(t * s.twSpeed + s.twPhase) * 0.25));
+          a = rest + (s.base - rest) * e;
+        }
+        if (a > 0.01 && x > -4 && x < W + 4 && y > -4 && y < H + 4){
+          ctx.beginPath();
+          ctx.fillStyle = "rgba(255,255,255," + a.toFixed(3) + ")";
+          ctx.arc(x, y, r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        if (nearTorch && e < 1){
+          var L = falloff(Math.hypot(mouse.x - tx, mouse.y - ty)) * (1 - e);
+          if (L > 0.02){
+            ctx.beginPath();
+            ctx.fillStyle = "rgba(255,255,255," + (s.base * L).toFixed(3) + ")";
+            ctx.arc(tx, ty, s.r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+    }
+  }
+
+  function onMove(e){
+    var p = e.touches ? e.touches[0] : e;
+    if (!p) return;
+    mouse.x = p.clientX; mouse.y = p.clientY; mouse.active = true;
+  }
+  function onLeave(){ mouse.active = false; }
+
+  window.addEventListener("mousemove", onMove, { passive: true });
+  document.documentElement.addEventListener("mouseleave", onLeave, { passive: true });
+  window.addEventListener("touchstart", onMove, { passive: true });
+  window.addEventListener("touchmove", onMove, { passive: true });
+  window.addEventListener("touchend", onLeave, { passive: true });
+  window.addEventListener("touchcancel", onLeave, { passive: true });
+
+  /* ---------- logo expand-on-load, replay on hover ---------- */
   var logo = document.getElementById("logo");
   function expandLogo(){ logo.classList.add("expanded"); }
-  function collapseLogo(){ logo.classList.remove("expanded"); }
   setTimeout(expandLogo, 650);
   logo.addEventListener("mouseenter", function(){
-    collapseLogo();
+    logo.classList.remove("expanded");
     setTimeout(expandLogo, 60);
   });
 
-  // button: gentle confirmation, no external action
-  var cta = document.getElementById("cta");
-  cta.addEventListener("click", function(){
-    cta.textContent = "Good question";
-    setTimeout(function(){ cta.textContent = "Ask why"; }, 1800);
-  });
+  /* ---------- section three: vertical scroll drives the gallery sideways ----------
+     The wrapper is exactly one viewport plus the sideways distance tall, so one
+     pixel of scroll moves the gallery one pixel and there is no dead scrolling. */
+  var workSection = document.getElementById("work");
+  var stage = document.querySelector(".sticky-stage");
+  var galleryViewport = document.querySelector(".gallery-viewport");
+  var galleryTrack = document.getElementById("galleryTrack");
+  var ticking = false;
 
-  var cta2 = document.getElementById("cta2");
-  cta2.addEventListener("click", function(){
-    cta2.textContent = "Exactly.";
-    setTimeout(function(){ cta2.textContent = "Why not?"; }, 1800);
-  });
-
-  var cta3 = document.getElementById("cta3");
-  cta3.addEventListener("click", function(){
-    cta3.textContent = "Let's go.";
-    setTimeout(function(){ cta3.textContent = "Start now"; }, 1800);
-  });
-
-  // section three: vertical scroll inside the tall wrapper drives horizontal motion
-  if (reduceMotion){
-    document.body.classList.add("reduced-motion");
-  } else {
-    var workSection = document.getElementById("work");
-    var galleryViewport = document.querySelector(".gallery-viewport");
-    var galleryTrack = document.getElementById("galleryTrack");
-    var ticking = false;
-
-    function updateGallery(){
-      ticking = false;
-      var rect = workSection.getBoundingClientRect();
-      var scrollable = workSection.offsetHeight - window.innerHeight;
-      if (scrollable <= 0) return;
-      var scrolled = -rect.top;
-      var progress = Math.max(0, Math.min(1, scrolled / scrollable));
-      var maxTranslate = Math.max(0, galleryTrack.scrollWidth - galleryViewport.clientWidth);
-      galleryTrack.style.transform = "translateX(-" + (progress * maxTranslate) + "px)";
-    }
-
-    function requestUpdate(){
-      if (!ticking){
-        ticking = true;
-        requestAnimationFrame(updateGallery);
-      }
-    }
-
-    window.addEventListener("scroll", requestUpdate, { passive: true });
-    window.addEventListener("resize", requestUpdate, { passive: true });
-    updateGallery();
+  function updateGallery(){
+    ticking = false;
+    if (swipeGallery) return;
+    var maxTranslate = Math.max(0, galleryTrack.scrollWidth - galleryViewport.clientWidth);
+    workSection.style.height = (window.innerHeight + maxTranslate) + "px";
+    if (maxTranslate <= 0){ galleryTrack.style.transform = "none"; return; }
+    var scrolled = -workSection.getBoundingClientRect().top;
+    var progress = Math.max(0, Math.min(1, scrolled / maxTranslate));
+    galleryTrack.style.transform = "translateX(-" + (progress * maxTranslate) + "px)";
   }
+  function requestUpdate(){
+    if (!ticking){ ticking = true; requestAnimationFrame(updateGallery); }
+  }
+
+  /* ---------- even spacing around "how it works" ----------
+     The gap above it (end of the hero's content to its hidden word) and the gap
+     below it (its button to the next section's hidden word) are made identical.
+     The gap above is whatever the centred hero leaves under its content; the
+     section's own padding is then set so the gap below matches it exactly. */
+  var heroEl = document.querySelector(".scene");
+  var heroContent = heroEl.querySelector(".content");
+  var twoEl = document.querySelector(".section-two");
+  var introEl = document.querySelector(".section-three .intro");
+
+  function evenGaps(){
+    var above = heroEl.getBoundingClientRect().bottom - heroContent.getBoundingClientRect().bottom;
+    var below = introEl.getBoundingClientRect().top - stage.getBoundingClientRect().top;
+    twoEl.style.paddingTop = Math.max(0, below - above) + "px";
+    twoEl.style.paddingBottom = Math.max(0, above - below) + "px";
+  }
+
+  // the pinned sideways gallery needs the whole stage to fit one screen; when it
+  // doesn't (short windows), use the plain swipe row there too
+  function fitGallery(){
+    if (baseSwipe) return;
+    document.body.classList.remove("swipe-gallery");
+    swipeGallery = stage.scrollHeight > window.innerHeight + 1;
+    if (swipeGallery) document.body.classList.add("swipe-gallery");
+  }
+  function relayout(){ fitGallery(); evenGaps(); updateGallery(); buildWordStars(); }
+  function layout(){ resize(); relayout(); }
+  window.addEventListener("resize", layout, { passive: true });
+  window.addEventListener("scroll", requestUpdate, { passive: true });
+  layout();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(relayout);
+  window.addEventListener("load", relayout);
+  requestAnimationFrame(draw);
 })();
 </script>
