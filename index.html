@@ -58,9 +58,10 @@ body{
     max(16px, env(safe-area-inset-left, 0px));
 }
 
-/* content-sized: only the hero and the finale are full-screen */
+/* every section takes a full screen, so only one hidden phrase is on screen at a time */
 .section-two{
   position:relative;
+  min-height:100svh;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -240,14 +241,6 @@ body{
   width:max-content;
   margin-inline:auto; /* centred when all cards fit; no effect when they overflow */
   will-change:transform;
-}
-
-/* desktop: the row starts off to the right and travels left as you scroll
-   down, so the sideways scroll is there however few cards there are */
-body:not(.swipe-gallery) .gallery-track{
-  margin-inline:0;
-  padding-left:60vw;
-  padding-right:10vw;
 }
 
 .site-card{
@@ -787,6 +780,28 @@ p.subhead{
     if (window.scrollY > 8){ gatherOn = true; scrollLocked = false; }
   });
 
+  /* The other sections: the scroll that brings a section in shows nothing yet.
+     The next scroll gesture that starts while its phrase is on screen calls the
+     phrase, and it then stays assembled for the rest of the visit. A gesture is
+     a run of scroll events; a pause of 180ms or more ends it. */
+  var lastScrollAt = -1e9;
+  function callPhrase(){
+    var now = performance.now();
+    var fresh = now - lastScrollAt > 180;
+    lastScrollAt = now;
+    if (!fresh) return;
+    var pick = null, best = Infinity;
+    for (var i = 1; i < phraseEls.length; i++){
+      if (phraseEls[i]._enterAt != null) continue;
+      var pr = phraseEls[i].getBoundingClientRect();
+      if (!(pr.top < H * 0.85 && pr.bottom > 0)) continue;
+      var off = Math.abs((pr.top + pr.bottom) / 2 - H * 0.42);
+      if (off < best){ best = off; pick = phraseEls[i]; }
+    }
+    if (pick) pick._enterAt = now;
+  }
+  window.addEventListener("scroll", callPhrase, { passive: true });
+
   var lastNow = 0;
   function drawWordStars(now, t){
     var dt = Math.min(1000, now - (lastNow || now));
@@ -794,22 +809,9 @@ p.subhead{
     var torch = mouse.active && mouse.x !== null;
     var i, k;
 
-    // only one phrase is ever called at a time: of those on screen, the one
-    // nearest the middle. The others are released and their stars fly home, so
-    // a phrase assembles again whenever its section comes back.
-    var active = null, best = Infinity;
-    for (i = 0; i < phraseEls.length; i++){
-      var pr = phraseEls[i].getBoundingClientRect();
-      if (i === 0 && !gatherOn) continue;                 // section one waits for the first scroll
-      if (!(pr.top < H * 0.85 && pr.bottom > 0)) continue;
-      var off = Math.abs((pr.top + pr.bottom) / 2 - H * 0.42);
-      if (off < best){ best = off; active = phraseEls[i]; }
-    }
-    for (i = 0; i < phraseEls.length; i++){
-      var ph = phraseEls[i];
-      if (ph !== active) ph._enterAt = null;
-      else if (ph._enterAt == null) ph._enterAt = now;
-    }
+    // section one is called by the first scroll gesture (held above); every
+    // other phrase is called by callPhrase() below. Once called, a phrase stays.
+    if (gatherOn && phraseEls[0]._enterAt == null) phraseEls[0]._enterAt = now;
 
     for (i = 0; i < wordStars.length; i++){
       var d = wordStars[i];
@@ -905,23 +907,6 @@ p.subhead{
     if (!ticking){ ticking = true; requestAnimationFrame(updateGallery); }
   }
 
-  /* ---------- even spacing around "how it works" ----------
-     The gap above it (end of the hero's content to its hidden word) and the gap
-     below it (its button to the next section's hidden word) are made identical.
-     The gap above is whatever the centred hero leaves under its content; the
-     section's own padding is then set so the gap below matches it exactly. */
-  var heroEl = document.querySelector(".scene");
-  var heroContent = heroEl.querySelector(".content");
-  var twoEl = document.querySelector(".section-two");
-  var introEl = document.querySelector(".section-three .intro");
-
-  function evenGaps(){
-    var above = heroEl.getBoundingClientRect().bottom - heroContent.getBoundingClientRect().bottom;
-    var below = introEl.getBoundingClientRect().top - stage.getBoundingClientRect().top;
-    twoEl.style.paddingTop = Math.max(0, below - above) + "px";
-    twoEl.style.paddingBottom = Math.max(0, above - below) + "px";
-  }
-
   // the pinned sideways gallery needs the whole stage to fit one screen; when it
   // doesn't (short windows), use the plain swipe row there too
   function fitGallery(){
@@ -930,7 +915,7 @@ p.subhead{
     swipeGallery = stage.scrollHeight > window.innerHeight + 1;
     if (swipeGallery) document.body.classList.add("swipe-gallery");
   }
-  function relayout(){ fitGallery(); evenGaps(); updateGallery(); buildWordStars(); }
+  function relayout(){ fitGallery(); updateGallery(); buildWordStars(); }
   function layout(){ resize(); relayout(); }
   window.addEventListener("resize", layout, { passive: true });
   window.addEventListener("scroll", requestUpdate, { passive: true });
