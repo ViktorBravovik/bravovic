@@ -80,10 +80,6 @@ body{
   color:var(--accent);
 }
 
-.cta-note{
-  margin:-0.8rem 0 0;
-  font-size:0.8rem;
-  color:var(--muted);
 }
 
 .section-two .content{
@@ -242,6 +238,7 @@ body{
   display:flex;
   gap:1.5rem;
   width:max-content;
+  margin-inline:auto; /* centred when all cards fit; no effect when they overflow */
   will-change:transform;
 }
 
@@ -259,17 +256,24 @@ body{
 }
 
 .site-image{
+  display:block;
   aspect-ratio:16/10;
   border-radius:10px;
-  background:linear-gradient(135deg, var(--tint, #2a2d3a), #05060a);
-  display:flex;
-  align-items:flex-end;
-  padding:0.6rem 0.8rem;
-  font-size:0.75rem;
-  letter-spacing:0.08em;
-  text-transform:uppercase;
-  color:rgba(244,241,234,0.55);
+  overflow:hidden;
+  background:#10121a;
+  outline:1px solid rgba(244,241,234,0.08);
+  transition:outline-color .25s ease;
 }
+.site-image img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:top;
+  transition:transform .5s cubic-bezier(.16,.84,.3,1);
+}
+.site-image:hover, .site-image:focus-visible{ outline-color:var(--accent); }
+.site-image:hover img, .site-image:focus-visible img{ transform:scale(1.04); }
 
 .site-card h3{
   margin:0;
@@ -312,20 +316,31 @@ body.swipe-gallery .gallery-viewport::-webkit-scrollbar{ display:none; }
 body.swipe-gallery .gallery-track{ transform:none !important; padding-right:16px; }
 body.swipe-gallery .site-card{ scroll-snap-align:start; }
 
+/* logo: centred at the top of the first section, tagline underneath. It
+   scrolls away with the section, so it never sits on top of the centred text. */
 .logo{
-  position:fixed;
+  position:absolute;
   top:max(28px, env(safe-area-inset-top, 0px));
-  left:max(28px, env(safe-area-inset-left, 0px));
+  left:50%;
+  transform:translateX(-50%);
   display:flex;
-  align-items:baseline;
-  font-weight:600;
-  font-size:1.05rem;
-  letter-spacing:0.01em;
-  color:var(--fg);
+  flex-direction:column;
+  align-items:center;
+  gap:0.5rem;
   z-index:5;
   user-select:none;
   cursor:default;
+  white-space:nowrap;
 }
+.logo-mark{
+  display:flex;
+  align-items:baseline;
+  font-weight:600;
+  font-size:1.15rem;
+  letter-spacing:0.01em;
+  color:var(--fg);
+}
+.logo .tagline{ font-size:0.66rem; }
 .logo .mid{
   display:inline-block;
   max-width:0;
@@ -411,7 +426,7 @@ p.subhead{
 }
 
 @media (max-width: 480px){
-  .logo{ font-size:0.95rem; }
+  .logo-mark{ font-size:1.05rem; }
   .foot{ display:none; }
 }
 </style>
@@ -422,16 +437,18 @@ p.subhead{
 <canvas id="sky" aria-hidden="true"></canvas>
 
 <div class="scene">
-  <div class="logo" id="logo">B<span class="mid">RAVOV<span class="slash">\</span></span>C</div>
+  <div class="logo" id="logo">
+    <div class="logo-mark">B<span class="mid">RAVOV<span class="slash">\</span></span>C</div>
+    <div class="tagline">Plan, Build, Improve &amp; Grow</div>
+  </div>
 
   <div class="content">
     <div class="headline-group">
       <div class="hidden-phrase solo" aria-hidden="true"><span class="hw">WHY</span></div>
       <h1>Curiosity is the beginning of everything.</h1>
     </div>
-    <p class="subhead">I'm Viktor, an AI consultant. Tell me your Why &amp; get yourself How.</p>
+    <p class="subhead">I'm Viktor, an AI consultant. Tell me your Why &amp; get yourself How. Whether it's a 10-year-old website, 100 unread emails, or the whole app.</p>
     <a class="cta" href="https://ig.me/m/bravoviktorrr" target="_blank" rel="noopener">Text me your problem</a>
-    <p class="cta-note">Opens Instagram DM · @bravoviktorrr</p>
   </div>
 </div>
 
@@ -453,30 +470,31 @@ p.subhead{
         <div class="hidden-phrase" aria-hidden="true"><span class="hw">WHY</span><span class="hw">NOT</span><span class="hw">ME</span></div>
         <h2>This is me</h2>
       </div>
-      <p>putting AI to work on real problems for business &amp; people too.</p>
+      <p>putting AI to work on real problems for business &amp; people.</p>
     </div>
 
     <div class="gallery-viewport">
       <div class="gallery-track" id="galleryTrack">
-        <article class="site-card" style="--tint:#3a3350;">
-          <div class="site-image">Site 01</div>
-          <h3>Project headline one</h3>
-          <p>Placeholder description — swap in what this site actually does.</p>
+        <article class="site-card">
+          <a class="site-image" href="https://auto-showroom-psi.vercel.app" target="_blank" rel="noopener" aria-label="Open the Auto Showroom website">
+            <img src="assets/auto-showroom.jpg" alt="Auto Showroom website preview" width="960" height="600" loading="lazy">
+          </a>
+          <h3>A car seller without a business card.</h3>
+          <p>Now buyers find him, see the price, and message him directly.</p>
         </article>
-        <article class="site-card" style="--tint:#2f3d4a;">
-          <div class="site-image">Site 02</div>
-          <h3>Project headline two</h3>
-          <p>Placeholder description — swap in what this site actually does.</p>
+        <article class="site-card">
+          <a class="site-image" href="https://stanwood.vercel.app" target="_blank" rel="noopener" aria-label="Open the Stan Wood website">
+            <img src="assets/stan-wood.jpg" alt="Stan Wood website preview" width="960" height="600" loading="lazy">
+          </a>
+          <h3>Hand-carved icons, hard to sell in an Instagram post.</h3>
+          <p>Now one page shows the craft, the price, and takes the order.</p>
         </article>
-        <article class="site-card" style="--tint:#43362e;">
-          <div class="site-image">Site 03</div>
-          <h3>Project headline three</h3>
-          <p>Placeholder description — swap in what this site actually does.</p>
-        </article>
-        <article class="site-card" style="--tint:#2e4336;">
-          <div class="site-image">Site 04</div>
-          <h3>Project headline four</h3>
-          <p>Placeholder description — swap in what this site actually does.</p>
+        <article class="site-card">
+          <a class="site-image" href="https://bober-barbershop.vercel.app" target="_blank" rel="noopener" aria-label="Open the Bober Barbershop website">
+            <img src="assets/bober-barbershop.jpg" alt="Bober Barbershop website preview" width="960" height="600" loading="lazy">
+          </a>
+          <h3>A barbershop that only took bookings by phone.</h3>
+          <p>Now clients book online in a minute and come back for the beaver's 15% off.</p>
         </article>
       </div>
     </div>
@@ -490,7 +508,6 @@ p.subhead{
       <h2>It takes one message.</h2>
     </div>
     <p class="subhead">Because the problem won't fix itself while you wait. Text me today.</p>
-    <p class="tagline">Let's Plan, Build, Improve &amp; Grow</p>
     <a class="cta" href="https://ig.me/m/bravoviktorrr" target="_blank" rel="noopener">Text me on Instagram</a>
   </div>
 </div>
@@ -572,6 +589,7 @@ p.subhead{
      Its letters are dotted out of stars, each letter a different size. The
      stars are ordinary-looking sky stars until the word is called. */
   var LIGHT_R = 240;
+  var STAR_R = 1.8; // every star in a letter is the same size
   var phraseEls = Array.prototype.slice.call(document.querySelectorAll(".hidden-phrase"));
   var finalePhrase = document.getElementById("phrase");
   var wordStars = [];
@@ -639,7 +657,7 @@ p.subhead{
           stars.push({
             x: place(pt)[0] + (rnd() - 0.5) * cap * 0.04,
             y: place(pt)[1] + (rnd() - 0.5) * cap * 0.04,
-            r: rnd() * 0.6 + 1.5,
+            r: STAR_R + rnd() * 0, // (rnd() kept so each word's seeded layout is unchanged)
             base: rnd() * 0.12 + 0.88,
             twSpeed: rnd() * 0.0016 + 0.0006,
             twPhase: rnd() * Math.PI * 2
@@ -660,7 +678,7 @@ p.subhead{
             stars.push({
               x: A.x + (B.x - A.x) * f + (rnd() - 0.5) * cap * 0.05,
               y: A.y + (B.y - A.y) * f + (rnd() - 0.5) * cap * 0.05,
-              r: rnd() * 0.5 + 1.1,
+              r: STAR_R + rnd() * 0,
               base: rnd() * 0.22 + 0.74,
               twSpeed: rnd() * 0.0016 + 0.0006,
               twPhase: rnd() * Math.PI * 2
