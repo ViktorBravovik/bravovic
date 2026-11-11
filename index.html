@@ -242,6 +242,14 @@ body{
   will-change:transform;
 }
 
+/* desktop: the row starts off to the right and travels left as you scroll
+   down, so the sideways scroll is there however few cards there are */
+body:not(.swipe-gallery) .gallery-track{
+  margin-inline:0;
+  padding-left:60vw;
+  padding-right:10vw;
+}
+
 .site-card{
   flex:0 0 auto;
   width:min(380px, 78vw);
