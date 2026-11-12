@@ -590,7 +590,6 @@ p.subhead{
      Its letters are dotted out of stars, each letter a different size. The
      stars are ordinary-looking sky stars until the word is called. */
   var LIGHT_R = 240;
-  var STAR_R = 1.8; // every star in a letter is the same size
   var phraseEls = Array.prototype.slice.call(document.querySelectorAll(".hidden-phrase"));
   var finalePhrase = document.getElementById("phrase");
   var wordStars = [];
@@ -629,14 +628,12 @@ p.subhead{
     var stars = [], lines = [];
     if (!w || !h) return { stars: stars, lines: lines };
 
-    var cap = size * 0.72; // full-size letter width unit; full height is the placeholder's height
-    // every letter gets its own size, never the same as its neighbour
+    var cap = size * 0.72; // letter width unit; full height is the placeholder's height
+    // letters are all the same height, like a constellation drawn on a star map
     var scales = [], natural = 0, i;
     for (i = 0; i < text.length; i++){
-      var sc = 0.66 + rnd() * 0.34;
-      if (i && Math.abs(sc - scales[i - 1]) < 0.09) sc = scales[i - 1] > 0.83 ? scales[i - 1] - 0.15 : scales[i - 1] + 0.15;
-      scales.push(sc);
-      natural += GLYPHS[text[i]].w * cap * sc;
+      scales.push(1);
+      natural += GLYPHS[text[i]].w * cap;
     }
     var avail = w - padL - ls;
     var gap = text.length > 1 ? (avail - natural) / (text.length - 1) : 0;
@@ -656,10 +653,10 @@ p.subhead{
         if (seen[key] === undefined){
           seen[key] = stars.length;
           stars.push({
-            x: place(pt)[0] + (rnd() - 0.5) * cap * 0.04,
-            y: place(pt)[1] + (rnd() - 0.5) * cap * 0.04,
-            r: STAR_R + rnd() * 0, // (rnd() kept so each word's seeded layout is unchanged)
-            base: rnd() * 0.12 + 0.88,
+            x: place(pt)[0] + (rnd() - 0.5) * cap * 0.07,
+            y: place(pt)[1] + (rnd() - 0.5) * cap * 0.07,
+            r: 1.1 + rnd() * 0.6,                // modest; a few are made bright below
+            base: rnd() * 0.15 + 0.85,
             twSpeed: rnd() * 0.0016 + 0.0006,
             twPhase: rnd() * Math.PI * 2
           });
@@ -671,16 +668,17 @@ p.subhead{
           var a = corner(stroke[k]), b = corner(stroke[k + 1]);
           var A = stars[a], B = stars[b];
           var len = Math.hypot(B.x - A.x, B.y - A.y);
-          // no joining lines, so the strokes themselves are dotted with stars
-          var extra = Math.max(0, Math.round(len / (cap * 0.27)) - 1);
+          // real constellations are sparse: stars sit at the corners, and only
+          // now and then a small faint one lies somewhere along a long stroke
+          var extra = (len > cap * 0.7 && rnd() < 0.45) ? 1 : 0;
           var prev = a;
           for (var n = 1; n <= extra; n++){
-            var f = n / (extra + 1);
+            var f = 0.3 + rnd() * 0.4;
             stars.push({
-              x: A.x + (B.x - A.x) * f + (rnd() - 0.5) * cap * 0.05,
-              y: A.y + (B.y - A.y) * f + (rnd() - 0.5) * cap * 0.05,
-              r: STAR_R + rnd() * 0,
-              base: rnd() * 0.22 + 0.74,
+              x: A.x + (B.x - A.x) * f + (rnd() - 0.5) * cap * 0.03,
+              y: A.y + (B.y - A.y) * f + (rnd() - 0.5) * cap * 0.03,
+              r: 0.8 + rnd() * 0.7,
+              base: rnd() * 0.25 + 0.55,
               twSpeed: rnd() * 0.0016 + 0.0006,
               twPhase: rnd() * Math.PI * 2
             });
@@ -690,6 +688,23 @@ p.subhead{
           lines.push([prev, b]);
         }
       });
+      // at most three stars of a letter burn bright, and never side by side:
+      // each next one is the corner farthest from those already chosen
+      var ids = Object.keys(seen).map(function(key){ return seen[key]; });
+      var want = Math.min(3, ids.length < 5 ? 2 : 2 + Math.floor(rnd() * 2));
+      var bright = [ids[Math.floor(rnd() * ids.length)]];
+      while (bright.length < want){
+        var far = -1, farD = cap * 0.5;               // closer than this counts as "next to each other"
+        ids.forEach(function(id){
+          var near = Infinity;
+          bright.forEach(function(b){ near = Math.min(near, Math.hypot(stars[id].x - stars[b].x, stars[id].y - stars[b].y)); });
+          if (near > farD){ farD = near; far = id; }
+        });
+        if (far < 0) break;
+        bright.push(far);
+      }
+      bright.forEach(function(id){ stars[id].r = 2.4 + rnd() * 0.7; stars[id].base = 1; });
+
       x0 += gw + gap;
     }
     return { stars: stars, lines: lines };
@@ -717,6 +732,9 @@ p.subhead{
           idx: wi,                  // position in its phrase: words arrive one after another
           seed: seed,
           stars: c.stars,
+          lines: c.lines,
+          lineV: prev ? prev.lineV : 0, // 0 = joining lines hidden, 1 = shown
+          linesOn: prev ? prev.linesOn : false, // the cursor has passed over it in this visit to the section
           p: prev ? prev.p : 0      // 0 = all stars at home, 1 = word assembled
         });
       });
@@ -824,6 +842,30 @@ p.subhead{
       // until a word has assembled, the cursor can still find it where it will be
       var nearTorch = torch && d.p < 1 && distToRect(mouse.x, mouse.y, rect) < LIGHT_R;
 
+      // the thin joining lines appear when the cursor (or a finger) passes
+      // within the word's own width, and then stay until the visitor moves on
+      // to another section (the word scrolls off screen). On screens with no
+      // cursor they are on once the word has assembled, or it could never be
+      // read there.
+      var over = torch && mouse.x >= rect.left && mouse.x <= rect.right &&
+        mouse.y >= rect.top - rect.height && mouse.y <= rect.bottom + rect.height;
+      var offScreen = rect.bottom < 0 || rect.top > H;
+      if (offScreen) d.linesOn = false;
+      else if (over && d.p >= 1) d.linesOn = true;
+      var wantLines = d.p >= 1 && !offScreen && (d.linesOn || noHover || forceReveal);
+      d.lineV = Math.max(0, Math.min(1, d.lineV + (wantLines ? dt / 450 : -dt / 700)));
+      if (d.lineV > 0.01 && rect.bottom > -20 && rect.top < H + 20){
+        ctx.lineWidth = 0.7;
+        ctx.strokeStyle = "rgba(255,255,255," + (0.3 * d.lineV).toFixed(3) + ")";
+        ctx.beginPath();
+        for (k = 0; k < d.lines.length; k++){
+          var sa = d.stars[d.lines[k][0]], sb = d.stars[d.lines[k][1]];
+          ctx.moveTo(rect.left + sa.x, rect.top + sa.y);
+          ctx.lineTo(rect.left + sb.x, rect.top + sb.y);
+        }
+        ctx.stroke();
+      }
+
       for (k = 0; k < d.stars.length; k++){
         var s = d.stars[k];
         var tx = rect.left + s.x, ty = rect.top + s.y;
@@ -847,6 +889,12 @@ p.subhead{
           ctx.fillStyle = "rgba(255,255,255," + a.toFixed(3) + ")";
           ctx.arc(x, y, r, 0, Math.PI * 2);
           ctx.fill();
+          if (r > 1.9){                                  // the bigger stars get a soft halo
+            ctx.beginPath();
+            ctx.fillStyle = "rgba(255,255,255," + (a * 0.1).toFixed(3) + ")";
+            ctx.arc(x, y, r * 2.6, 0, Math.PI * 2);
+            ctx.fill();
+          }
         }
         if (nearTorch && e < 1){
           var L = falloff(Math.hypot(mouse.x - tx, mouse.y - ty)) * (1 - e);
