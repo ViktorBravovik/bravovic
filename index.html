@@ -342,6 +342,35 @@ body.swipe-gallery .site-card{ scroll-snap-align:start; }
   color:var(--fg);
 }
 .logo .tagline{ font-size:0.66rem; }
+
+/* who is behind the page: a face, a role, and a sign he's reachable */
+.status{
+  display:flex;
+  align-items:center;
+  gap:0.6rem;
+  margin-top:0.5rem;
+  padding:4px 14px 4px 4px;
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:999px;
+  background:rgba(255,255,255,0.04);
+  font-size:0.74rem;
+  color:var(--muted);
+}
+.status img{
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  object-fit:cover;
+  display:block;
+}
+.status .open{ display:flex; align-items:center; gap:0.4rem; color:var(--fg); }
+.status .open i{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#3ddc84;
+  box-shadow:0 0 8px rgba(61,220,132,0.7);
+}
 .logo .mid{
   display:inline-block;
   max-width:0;
@@ -441,6 +470,11 @@ p.subhead{
   <div class="logo" id="logo">
     <div class="logo-mark">B<span class="mid">RAVOV<span class="slash">\</span></span>C</div>
     <div class="tagline">Plan, Build, Improve &amp; Grow</div>
+    <div class="status">
+      <img src="assets/viktor.jpg" alt="Viktor" width="28" height="28">
+      <span>Viktor · AI consultant</span>
+      <span class="open"><i aria-hidden="true"></i>Open for messages</span>
+    </div>
   </div>
 
   <div class="content">
