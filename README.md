@@ -1,20 +1,23 @@
 # Bravovic
 
-A single-page landing site: a black starfield hero with a hidden "WHY NOT ME NOW" constellation that reveals itself as you scroll, a horizontal scroll-jacked project gallery, and a logo that expands from `B\C` to the full wordmark.
+Viktor's link-in-bio landing page. One goal: get a visitor to text their problem in an Instagram DM.
 
-Static HTML/CSS/JS, no build step, no dependencies — just `index.html`.
+Static HTML/CSS/JS, no build step, no dependencies. Everything is in `index.html`; images are in `assets/`.
 
-## Status
+## The page
 
-This is a first structural pass, not final content:
-- Copy, headline and subheadline text are placeholders.
-- The "My websites" gallery cards are placeholders — swap in real projects, images and links.
-- The CTA buttons ("Ask why", "Why not?", "Start now") don't go anywhere yet — wire them to a real destination (contact form, mailto, booking link, etc.).
-- No navigation menu, footer legal pages (Privacy/Terms), or SEO meta tags (description, Open Graph, favicon) yet.
+Four screens over a fixed starfield canvas that streams outward as the page scrolls:
+
+1. **Hero** — portrait and logo, headline, call to action.
+2. **Work** — three client projects, each linking to the live site.
+3. **Plans** — free practical plans by email. The form posts to the URL in `PLANS_ENDPOINT` (in `index.html`); while that is empty, nothing is sent.
+4. **Finale** — the ask, with the Instagram DM button.
+
+The page never takes over scrolling: no pinned sections, no held gestures.
 
 ## Local development
 
-No build step needed — open `index.html` directly in a browser, or serve it with any static server:
+Open `index.html` directly in a browser, or serve the folder with any static server:
 
 ```bash
 npx serve .
@@ -22,4 +25,6 @@ npx serve .
 
 ## Deployment
 
-Deployed to Vercel from this repository's `main` branch.
+Deployed to Vercel from this repository's `main` branch: https://bravovic.vercel.app
+
+The share image (`assets/share.jpg`) is referenced by its full URL in the `og:image` tag. If the site moves to another domain, update that tag and `og:url`.
