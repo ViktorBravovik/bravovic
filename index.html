@@ -72,18 +72,18 @@ body{
 /* who this is: a face and the name */
 .logo{
   display:flex;
-  align-items:baseline; /* the portrait stands on the text baseline */
-  gap:0.5em;
+  align-items:center;
+  gap:0.65em;
   font-size:1.15rem;
   user-select:none;
 }
-/* the portrait is exactly as tall as the capital B beside it */
 .logo img{
   display:block;
-  width:0.72em;
-  height:0.72em;
+  width:42px;
+  height:42px;
   border-radius:50%;
   object-fit:cover;
+  outline:1px solid rgba(244,241,234,0.16);
 }
 .logo-mark{
   font-weight:600;
@@ -435,7 +435,7 @@ h2{
 <main>
 <section class="hero">
   <div class="logo">
-    <img src="assets/viktor.jpg" alt="Viktor" width="14" height="14">
+    <img src="assets/viktor.jpg" alt="Viktor" width="42" height="42">
     <div class="logo-mark">BRAVOV<span class="slash">\</span>C</div>
   </div>
 
