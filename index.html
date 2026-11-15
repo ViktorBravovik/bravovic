@@ -285,6 +285,8 @@ h2{
   padding-inline:16px;
   text-align:center;
 }
+.plans-intro h2{ min-height:1.2em; }
+.plans-intro .subhead{ min-height:4.8em; margin-inline:auto; }
 .plans-grid{
   width:100%;
   max-width:60rem;
@@ -369,8 +371,6 @@ h2{
 /* the headline and story beside the cover change with the plan */
 .swap{ transition:opacity .35s ease; }
 .swap.out{ opacity:0; }
-.plans-text h2{ min-height:1.2em; font-size:clamp(1.3rem, 2.4vw, 1.7rem); }
-.plans-text .subhead{ min-height:4.8em; font-size:clamp(0.92rem, 1.3vw, 1rem); max-width:none; }
 @media (prefers-reduced-motion: reduce){
   .cover-words, .swap{ transition:none; }
 }
@@ -389,6 +389,7 @@ h2{
 }
 .plans-form input{
   flex:1 1 14rem;
+  max-width:16rem;
   min-width:0;
   font:inherit;
   font-size:0.98rem;
@@ -490,8 +491,8 @@ h2{
 
 <section class="plans" id="plans">
   <div class="plans-intro">
-    <h2>Free plans, one steady habit at a time.</h2>
-    <p class="lede">Short, practical steps for the things that trip you up. Pick one below.</p>
+    <h2 class="swap" id="plansHead"></h2>
+    <p class="subhead swap" id="plansSub"></p>
   </div>
   <div class="plans-grid">
     <div class="cover-wrap">
@@ -514,8 +515,6 @@ h2{
       </button>
     </div>
     <div class="plans-text">
-      <h2 class="swap" id="plansHead"></h2>
-      <p class="subhead swap" id="plansSub"></p>
       <form class="plans-form" id="plansForm">
         <input type="email" name="email" required placeholder="Your email" autocomplete="email" aria-label="Your email">
         <button class="cta" type="submit">Send me the plan</button>
