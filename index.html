@@ -279,6 +279,12 @@ h2{
 
 /* ---------- free plans ---------- */
 
+.plans{ gap:3.4rem; }
+.plans-intro{
+  max-width:30rem;
+  padding-inline:16px;
+  text-align:center;
+}
 .plans-grid{
   width:100%;
   max-width:60rem;
@@ -327,7 +333,7 @@ h2{
 }
 /* the title and its line fold away and the next plan's unfold */
 .cover-words{
-  margin-top:1.6rem;
+  margin-top:1.4rem;
   min-height:6.6rem;
   display:flex;
   flex-direction:column;
@@ -363,8 +369,8 @@ h2{
 /* the headline and story beside the cover change with the plan */
 .swap{ transition:opacity .35s ease; }
 .swap.out{ opacity:0; }
-.plans-text h2{ min-height:1.2em; }
-.plans-text .subhead{ min-height:4.8em; }
+.plans-text h2{ min-height:1.2em; font-size:clamp(1.3rem, 2.4vw, 1.7rem); }
+.plans-text .subhead{ min-height:4.8em; font-size:clamp(0.92rem, 1.3vw, 1rem); max-width:none; }
 @media (prefers-reduced-motion: reduce){
   .cover-words, .swap{ transition:none; }
 }
@@ -375,7 +381,6 @@ h2{
   gap:1.4rem;
   text-align:left;
 }
-.plans-text .ladder{ margin:0 0 -0.4rem; padding-left:0; }
 .plans-form{
   width:100%;
   display:flex;
@@ -403,7 +408,6 @@ h2{
   .plans-grid{ grid-template-columns:1fr; gap:2rem; max-width:26rem; }
   .cover-wrap{ max-width:250px; }
   .plans-text{ align-items:center; text-align:center; }
-  .plans-text .ladder{ padding-left:0.32em; }
   .plans-form{ justify-content:center; }
 }
 
@@ -485,11 +489,15 @@ h2{
 </section>
 
 <section class="plans" id="plans">
+  <div class="plans-intro">
+    <h2>Free plans, one steady habit at a time.</h2>
+    <p class="lede">Short, practical steps for the things that trip you up. Pick one below.</p>
+  </div>
   <div class="plans-grid">
     <div class="cover-wrap">
       <!-- one cover for every plan: only its title and line change. Click it for the next plan. -->
       <button class="cover" id="cover" type="button" aria-label="Show the next plan">
-        <span class="cover-top">Expert Practical Steps Plan</span>
+        <span class="cover-top">Expert Practical Plan</span>
         <span class="cover-words" id="coverWords">
           <span class="cover-title" id="coverTitle"></span>
           <span class="cover-sub" id="coverSub"></span>
@@ -506,7 +514,6 @@ h2{
       </button>
     </div>
     <div class="plans-text">
-      <p class="ladder">Expert Practical Steps Plan</p>
       <h2 class="swap" id="plansHead"></h2>
       <p class="subhead swap" id="plansSub"></p>
       <form class="plans-form" id="plansForm">
