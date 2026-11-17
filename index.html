@@ -159,6 +159,45 @@ h2{
 .cta:active{ transform:translateY(0); }
 .cta:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; }
 
+.about{
+  max-width:34rem;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.about-more{
+  display:grid;
+  grid-template-rows:0fr;
+  opacity:0;
+  transition:grid-template-rows .5s ease, opacity .4s ease;
+}
+.about-more.open{ grid-template-rows:1fr; opacity:1; }
+.about-inner{
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  gap:1rem;
+}
+.about-inner .subhead:first-child{ margin-top:1rem; }
+.read-more{
+  align-self:flex-end;
+  margin-top:0.5rem;
+  appearance:none;
+  background:none;
+  border:0;
+  padding:0.2rem 0;
+  font:inherit;
+  font-size:0.86rem;
+  font-weight:500;
+  color:var(--accent);
+  cursor:pointer;
+}
+.read-more:hover{ text-decoration:underline; text-underline-offset:3px; }
+.read-more:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; border-radius:4px; }
+@media (prefers-reduced-motion: reduce){
+  .about-more{ transition:none; }
+}
+
 /* the offer, right under the button it belongs to */
 .free{
   margin:-0.8rem 0 0;
@@ -508,7 +547,17 @@ h2{
 
   <div class="content">
     <h1>Curiosity is the beginning of everything.</h1>
-    <p class="subhead">I'm Viktor, an AI consultant. Tell me your Why &amp; get yourself How. Whether it's a 10-year-old website, 100 unread emails, or the whole app.</p>
+    <div class="about">
+      <p class="subhead">I'm Viktor, good to meet you. I think the world doesn't wait for anyone to catch up. Every year the gap between those who adapt to trends and those who get left behind gets wider — so I built my life around closing that gap.</p>
+      <div class="about-more" id="aboutMore">
+        <div class="about-inner">
+          <p class="subhead">For the past 4+ years I've worked with AI every day. I walk and talk AI, read AI, search AI, work with AI. Along the way I make new connections and help people bring AI into their life or business.</p>
+          <p class="subhead">Technology is only the right side of my life. The left side is being able to say what you mean and mean what you say in front of people. So in the era of AI, I've put just as much work into training myself as a public speaker.</p>
+          <p class="subhead">Underneath both, I've grown the fruit I want to share with you: a brain system with the best practical knowledge for becoming a public figure. And whatever problem you hand me, whether it's a website, business software or an app for your expertise, let me know.</p>
+        </div>
+      </div>
+      <button class="read-more" id="readMore" type="button" aria-expanded="false" aria-controls="aboutMore">Read more</button>
+    </div>
     <a class="cta" href="https://ig.me/m/bravoviktorrr" target="_blank" rel="noopener">Text me your problem</a>
     <p class="free">The first problem is free.</p>
   </div>
@@ -611,6 +660,14 @@ h2{
   var canvas = document.getElementById("sky");
   var ctx = canvas.getContext("2d");
   var reduceMotion = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+  var aboutMore = document.getElementById("aboutMore");
+  var readMore = document.getElementById("readMore");
+  readMore.addEventListener("click", function(){
+    var open = aboutMore.classList.toggle("open");
+    readMore.setAttribute("aria-expanded", open ? "true" : "false");
+    readMore.textContent = open ? "Read less" : "Read more";
+  });
 
   /* ---------- the sky ---------- */
   var W = 0, H = 0, DPR = Math.min(window.devicePixelRatio || 1, 2);
