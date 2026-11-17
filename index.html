@@ -280,6 +280,40 @@ h2{
 /* ---------- free plans ---------- */
 
 .plans{ gap:3.4rem; }
+.plans-picker{
+  max-width:40rem;
+  padding-inline:16px;
+  text-align:center;
+}
+.plans-picker .ladder{ margin:0; }
+.picker-list{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:0.6rem;
+  margin-top:1rem;
+}
+.picker-chip{
+  font:inherit;
+  font-size:0.9rem;
+  font-weight:500;
+  color:var(--muted);
+  background:rgba(244,241,234,0.04);
+  border:1px solid rgba(244,241,234,0.18);
+  border-radius:999px;
+  padding:0.6rem 1.2rem;
+  cursor:pointer;
+  transition:background .25s ease, border-color .25s ease, color .25s ease, transform .2s ease;
+}
+.picker-chip:hover{ color:var(--fg); border-color:rgba(244,241,234,0.34); }
+.picker-chip:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; }
+.picker-chip:active{ transform:translateY(1px); }
+.picker-chip.active{
+  color:#121318;
+  background:var(--accent);
+  border-color:var(--accent);
+  font-weight:600;
+}
 .plans-intro{
   max-width:30rem;
   padding-inline:16px;
@@ -323,9 +357,7 @@ h2{
   overflow:hidden;
   font:inherit;
   color:inherit;
-  cursor:pointer;
 }
-.cover:focus-visible{ outline:2px solid var(--accent); outline-offset:4px; }
 .cover-top{
   font-size:0.58rem;
   font-weight:700;
@@ -424,7 +456,6 @@ h2{
 .plans-form input:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; }
 .plans-note{ margin:-0.6rem 0 0; min-height:1.2em; font-size:0.86rem; color:var(--muted); }
 .plans-note a{ color:var(--fg); }
-.cover:disabled{ cursor:default; }
 
 @media (max-width: 860px){
   .plans-grid{ grid-template-columns:1fr; gap:2rem; max-width:26rem; }
@@ -511,14 +542,18 @@ h2{
 </section>
 
 <section class="plans" id="plans">
+  <div class="plans-picker" id="plansPicker">
+    <p class="ladder">Pick your problem</p>
+    <div class="picker-list" id="pickerList"></div>
+  </div>
   <div class="plans-intro">
     <h2 class="swap" id="plansHead"></h2>
     <p class="subhead swap" id="plansSub"></p>
   </div>
   <div class="plans-grid">
     <div class="cover-wrap">
-      <!-- one cover for every plan: only its title and line change. Click it for the next plan. -->
-      <button class="cover" id="cover" type="button" aria-label="Show the next plan">
+      <!-- one cover, same design for every plan: only its content changes with the picker above -->
+      <div class="cover" id="cover">
         <span class="cover-top">Expert Practical Plan</span>
         <span class="cover-words" id="coverWords">
           <span class="cover-title" id="coverTitle"></span>
@@ -533,10 +568,11 @@ h2{
           </g>
         </svg>
         <span class="cover-foot">BRAVOV<span class="slash">\</span>C</span>
-      </button>
+      </div>
     </div>
     <div class="plans-text">
       <form class="plans-form" id="plansForm">
+        <input type="hidden" name="plan" id="plansPlanField">
         <input type="email" name="email" required placeholder="Your email" autocomplete="email" aria-label="Your email">
         <button class="cta" type="submit">Send me the plan</button>
       </form>
@@ -662,41 +698,55 @@ h2{
   document.documentElement.addEventListener("mouseleave", function(){ mouse.active = false; }, { passive: true });
 
   /* ---------- the plan cover ----------
-     One cover, several plans. Only the title and line on the cover change, and
-     with them the headline and story beside it. The plans take turns by
-     themselves; a click on the cover moves to the next one and stops the turns. */
+     One cover design, several plans. Picking a topic in the list above swaps
+     the cover's title/line, the headline and story beside it, and the
+     plan id carried along with the signup form — nothing turns on its own. */
   var PLANS = [
-    { title: "Speak clearly on camera",
+    { id: "camera",
+      title: "Speak clearly on camera",
       line: "Open, cut, and finish on the point.",
       head: "Oh, this one is huge!",
       story: "I started articulating my thoughts way more clearly after I applied these steps." },
-    { title: "Write messages people answer",
+    { id: "messages",
+      title: "Write messages people answer",
       line: "One ask, the right length, a first line that gets opened.",
       head: "This one saved my inbox.",
       story: "Draft: your own story of how you came to this plan goes here.",
       draft: true },
-    { title: "Run a call without rambling",
+    { id: "calls",
+      title: "Run a call without rambling",
       line: "A clear start, one decision, a short follow-up.",
       head: "My calls got twice as short.",
       story: "Draft: your own story of how you came to this plan goes here.",
       draft: true }
   ].filter(function(p){ return !p.draft; }); // drafts stay off the page until their text is real
-  var COVER_MS = 6000;
-  var cover = document.getElementById("cover");
   var coverWords = document.getElementById("coverWords");
   var coverTitle = document.getElementById("coverTitle");
   var coverSub = document.getElementById("coverSub");
   var plansHead = document.getElementById("plansHead");
   var plansSub = document.getElementById("plansSub");
+  var plansPlanField = document.getElementById("plansPlanField");
+  var plansPicker = document.getElementById("plansPicker");
+  var pickerList = document.getElementById("pickerList");
   var coverAt = 0;
   function fillPlan(i){
     coverTitle.textContent = PLANS[i].title;
     coverSub.textContent = PLANS[i].line;
     plansHead.textContent = PLANS[i].head;
     plansSub.textContent = PLANS[i].story;
+    plansPlanField.value = PLANS[i].id;
+  }
+  function markPickerActive(){
+    Array.prototype.forEach.call(pickerList.children, function(chip, i){
+      var isActive = i === coverAt;
+      chip.classList.toggle("active", isActive);
+      chip.setAttribute("aria-pressed", isActive ? "true" : "false");
+    });
   }
   function showPlan(i){
+    if (i === coverAt) return;
     coverAt = i;
+    markPickerActive();
     coverWords.classList.add("fold");
     plansHead.classList.add("out");
     plansSub.classList.add("out");
@@ -707,16 +757,20 @@ h2{
       plansSub.classList.remove("out");
     }, reduceMotion ? 0 : 400);
   }
-  function nextPlan(){ showPlan((coverAt + 1) % PLANS.length); }
   fillPlan(0);
   if (PLANS.length > 1){
-    var coverTimer = setInterval(nextPlan, COVER_MS);
-    cover.addEventListener("click", function(){
-      clearInterval(coverTimer); // the visitor is turning the plans now
-      nextPlan();
+    PLANS.forEach(function(plan, i){
+      var chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "picker-chip";
+      chip.textContent = plan.title;
+      chip.setAttribute("aria-pressed", i === 0 ? "true" : "false");
+      chip.addEventListener("click", function(){ showPlan(i); });
+      pickerList.appendChild(chip);
     });
+    markPickerActive();
   } else {
-    cover.disabled = true; // a single plan: nothing to turn to
+    plansPicker.style.display = "none"; // one plan: nothing to pick
   }
 
   /* the steps and mic draw themselves once, the first time the cover scrolls into view */
